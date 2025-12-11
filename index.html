@@ -1,153 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <title>Happy Birthday Shifu</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family:"Poppins",sans-serif; }
-    body {
-      height:100vh; display:flex; justify-content:center; align-items:center;
-      background: radial-gradient(circle at top, #ffd1e3, #ff8bb0, #ff4e88);
-      overflow:hidden; position:relative; color:#fff;
-    }
-
-    /* Slide container */
-    .slide {
-      position:absolute; inset:0;
-      display:flex; flex-direction:column; justify-content:center; align-items:center;
-      padding:20px; text-align:center; opacity:0; transition:opacity 1s ease-in-out;
-    }
-    .slide.active { opacity:1; }
-
-    h1 { font-size:2.3rem; margin-bottom:10px; text-shadow:0 0 10px rgba(0,0,0,0.4); }
-    p { font-size:1.2rem; max-width:650px; line-height:1.6; text-shadow:0 0 8px rgba(0,0,0,0.35); }
-    .small { font-size:1.1rem; }
-
-    /* Image style */
-    .photo {
-      width: 320px;
-      height: 320px;
-      object-fit: cover;
-      border-radius: 18px;
-      margin-bottom: 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-      display: block;
-    }
-
-    /* Floating hearts */
-    .heart {
-      position: absolute; bottom: -40px; font-size: 20px;
-      animation: floatUp 8s linear infinite; opacity:0.8;
-    }
-    @keyframes floatUp {
-      0% { transform: translateY(0) scale(1); opacity:0.9; }
-      100% { transform: translateY(-110vh) scale(1.8); opacity:0; }
-    }
-
-    .overlay {
-      position:absolute; inset:0;
-      background: radial-gradient(circle, rgba(0,0,0,0.08), rgba(0,0,0,0.28));
-      z-index:-1;
-      pointer-events: none; /* important so overlay doesn't block clicks */
-    }
-
-    @media (max-width: 480px) {
-      h1 { font-size:1.6rem; }
-      p { font-size:0.95rem; }
-      .photo { width: 220px; height: 220px; }
-    }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:"Poppins",sans-serif}
+    body{height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at top,#ffd1e3,#ff8bb0,#ff4e88);color:#fff;overflow:hidden;position:relative}
+    .slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;opacity:0;transition:opacity .9s ease}
+    .slide.active{opacity:1}
+    h1{font-size:2.2rem;margin-bottom:10px;text-shadow:0 0 10px rgba(0,0,0,.4)}
+    p{font-size:1.1rem;max-width:700px;line-height:1.6;text-shadow:0 0 8px rgba(0,0,0,.35)}
+    .photo{width:320px;height:320px;object-fit:cover;border-radius:16px;margin-bottom:18px;box-shadow:0 10px 30px rgba(0,0,0,.25);display:block}
+    .overlay{position:absolute;inset:0;background:radial-gradient(circle,rgba(0,0,0,.08),rgba(0,0,0,.28));z-index:-1;pointer-events:none}
+    .heart{position:absolute;bottom:-40px;font-size:20px;opacity:.85;animation:floatUp 8s linear infinite}
+    @keyframes floatUp{0%{transform:translateY(0) scale(1);opacity:.9}100%{transform:translateY(-110vh) scale(1.8);opacity:0}}
+    @media(max-width:480px){h1{font-size:1.6rem}.photo{width:220px;height:220px}p{font-size:.95rem}}
+    /* play button styling */
+    #playBtn{position:fixed;bottom:18px;left:18px;z-index:9999;padding:10px 14px;border-radius:10px;border:none;background:#ff5b8a;color:#fff;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.2)}
   </style>
 </head>
 <body>
 
-  <!-- Audio (kept debug play button) -->
+  <!-- audio -->
   <audio id="bgMusic" src="music.mp3" preload="auto" loop></audio>
-  <button id="playBtn" style="position:fixed;bottom:18px;left:18px;z-index:9999;padding:8px 12px;border-radius:8px;border:none;background:#ff5b8a;color:white;box-shadow:0 6px 18px rgba(0,0,0,0.2);">
-    ▶ Play / Tap to enable music
-  </button>
+  <button id="playBtn">▶ Play / Tap to enable music</button>
 
   <script>
-    const audio = document.getElementById("bgMusic");
-    const btn = document.getElementById("playBtn");
+    const audio = document.getElementById('bgMusic'), btn=document.getElementById('playBtn');
     audio.volume = 0.5;
-    audio.play().catch(()=>{/*autoplay likely blocked*/});
-    function userPlayHandler(){
-      audio.play().then(()=>{ btn.style.display='none'; }).catch(()=>{ /*still blocked*/ });
-      window.removeEventListener('click', userPlayHandler);
-      window.removeEventListener('touchstart', userPlayHandler);
+    audio.play().catch(()=>{/*autoplay blocked*/});
+    function userPlay(){
+      audio.play().then(()=>{ btn.style.display='none' }).catch(()=>{ /*still blocked*/ });
+      window.removeEventListener('click',userPlay); window.removeEventListener('touchstart',userPlay);
     }
-    window.addEventListener('click', userPlayHandler, { once:true });
-    window.addEventListener('touchstart', userPlayHandler, { once:true });
-    btn.addEventListener('click', ()=> userPlayHandler());
+    window.addEventListener('click', userPlay, { once:true });
+    window.addEventListener('touchstart', userPlay, { once:true });
+    btn.addEventListener('click', userPlay);
   </script>
 
   <div class="overlay"></div>
 
-  <!-- Slides with images (I used the filenames shown in your repo) -->
+  <!-- slides (using simple filenames img1.jpg .. img7.jpg) -->
   <div class="slide active">
-    <img class="photo" src="WhatsApp%20Image%202025-12-11%20at%2012.39.51%20PM.jpg" alt="pic1">
+    <img class="photo" src="img1.jpg" alt="pic1">
     <h1>Happy Birthday, My Shifu ❤️</h1>
-    <p class="small">Today is all about you, my love.</p>
+    <p>Today is all about you, my love.</p>
   </div>
 
   <div class="slide">
-    <img class="photo" src="WhatsApp%20Image%202025-12-11%20at%2012.39.52%20PM%20(1).jpg" alt="pic2">
+    <img class="photo" src="img2.jpg" alt="pic2">
     <h1>To the one who means everything to me…</h1>
     <p>My love, my lifeline, my whole heart.</p>
   </div>
 
   <div class="slide">
-    <img class="photo" src="WhatsApp%20Image%202025-12-11%20at%2012.39.52%20PM%20(2).jpg" alt="pic3">
+    <img class="photo" src="img3.jpg" alt="pic3">
     <h1>Thank you for being in my life</h1>
     <p>Thanku for being in life, my love and my lifeline.</p>
   </div>
 
   <div class="slide">
-    <img class="photo" src="WhatsApp%20Image%202025-12-11%20at%2012.39.53%20PM.jpg" alt="pic4">
+    <img class="photo" src="img4.jpg" alt="pic4">
     <h1>My bubu 💕</h1>
     <p>I am grateful that you came into my life, my bubu.</p>
   </div>
 
   <div class="slide">
-    <img class="photo" src="WhatsApp%20Image%202025-12-11%20at%2012.39.53%20PM%20(1).jpg" alt="pic5">
+    <img class="photo" src="img5.jpg" alt="pic5">
     <h1>Blessings from Bholenath 🕉️</h1>
     <p>May Bholenath bless you and give everything you want in your life.</p>
   </div>
 
   <div class="slide">
-    <img class="photo" src="WhatsApp%20Image%202025-12-11%20at%2012.39.54%20PM.jpg" alt="pic6">
+    <img class="photo" src="img6.jpg" alt="pic6">
     <h1>Keep Smiling Always</h1>
     <p>And make u smiling every time, today and forever.</p>
   </div>
 
   <div class="slide">
-    <img class="photo" src="WhatsApp%20Image%202025-12-11%20at%2012.39.54%20PM%20(1).jpg" alt="pic7">
+    <img class="photo" src="img7.jpg" alt="pic7">
     <h1>You are my forever</h1>
     <p>Happy Birthday, my Shifu. My love, my lifeline, my everything. ❤️</p>
   </div>
 
   <script>
-    // Slide rotation
     const slides = document.querySelectorAll('.slide');
-    let current = 0;
-    setInterval(() => {
-      slides[current].classList.remove('active');
-      current = (current + 1) % slides.length;
-      slides[current].classList.add('active');
-    }, 5000);
-
-    // hearts
-    function createHeart(){
-      const heart = document.createElement('div');
-      heart.className = 'heart'; heart.textContent = '❤️';
-      heart.style.left = Math.random() * 100 + 'vw';
-      heart.style.animationDuration = 6 + Math.random() * 5 + 's';
-      heart.style.fontSize = 18 + Math.random() * 20 + 'px';
-      document.body.appendChild(heart);
-      setTimeout(()=> heart.remove(), 11000);
-    }
-    setInterval(createHeart, 600);
+    let current=0;
+    setInterval(()=>{ slides[current].classList.remove('active'); current=(current+1)%slides.length; slides[current].classList.add('active'); },5000);
+    function createHeart(){ const heart=document.createElement('div'); heart.className='heart'; heart.textContent='❤️'; heart.style.left=Math.random()*100+'vw'; heart.style.animationDuration=6+Math.random()*5+'s'; heart.style.fontSize=18+Math.random()*20+'px'; document.body.appendChild(heart); setTimeout(()=>heart.remove(),11000); }
+    setInterval(createHeart,600);
   </script>
 </body>
 </html>
