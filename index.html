@@ -5,219 +5,148 @@
   <title>Happy Birthday Shifu</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "Poppins", sans-serif;
-    }
-
+    * { margin:0; padding:0; box-sizing:border-box; font-family:"Poppins",sans-serif; }
     body {
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      height:100vh; display:flex; justify-content:center; align-items:center;
       background: radial-gradient(circle at top, #ffd1e3, #ff8bb0, #ff4e88);
-      overflow: hidden;
-      position: relative;
-      color: #fff;
+      overflow:hidden; position:relative; color:#fff;
     }
 
     /* Slide container */
     .slide {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      text-align: center;
-      opacity: 0;
-      transition: opacity 1s ease-in-out;
+      position:absolute; inset:0;
+      display:flex; flex-direction:column; justify-content:center; align-items:center;
+      padding:20px; text-align:center; opacity:0; transition:opacity 1s ease-in-out;
     }
+    .slide.active { opacity:1; }
 
-    .slide.active {
-      opacity: 1;
-    }
+    h1 { font-size:2.3rem; margin-bottom:10px; text-shadow:0 0 10px rgba(0,0,0,0.4); }
+    p { font-size:1.2rem; max-width:650px; line-height:1.6; text-shadow:0 0 8px rgba(0,0,0,0.35); }
+    .small { font-size:1.1rem; }
 
-    h1 {
-      font-size: 2.3rem;
-      margin-bottom: 10px;
-      text-shadow: 0 0 10px rgba(0,0,0,0.4);
-    }
-
-    p {
-      font-size: 1.2rem;
-      max-width: 650px;
-      line-height: 1.6;
-      text-shadow: 0 0 8px rgba(0,0,0,0.35);
-    }
-
-    .small {
-      font-size: 1.1rem;
+    /* Image style */
+    .photo {
+      width: 320px;
+      height: 320px;
+      object-fit: cover;
+      border-radius: 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      display: block;
     }
 
     /* Floating hearts */
     .heart {
-      position: absolute;
-      bottom: -40px;
-      font-size: 20px;
-      animation: floatUp 8s linear infinite;
-      opacity: 0.8;
+      position: absolute; bottom: -40px; font-size: 20px;
+      animation: floatUp 8s linear infinite; opacity:0.8;
     }
-
     @keyframes floatUp {
-      0%   { transform: translateY(0) scale(1); opacity: 0.9; }
-      100% { transform: translateY(-110vh) scale(1.8); opacity: 0; }
+      0% { transform: translateY(0) scale(1); opacity:0.9; }
+      100% { transform: translateY(-110vh) scale(1.8); opacity:0; }
     }
 
-    /* Optional dark overlay for more contrast */
     .overlay {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle, rgba(0,0,0,0.1), rgba(0,0,0,0.35));
-      z-index: -1;
+      position:absolute; inset:0;
+      background: radial-gradient(circle, rgba(0,0,0,0.08), rgba(0,0,0,0.28));
+      z-index:-1;
+      pointer-events: none; /* important so overlay doesn't block clicks */
     }
 
-    /* Mobile tweaks */
     @media (max-width: 480px) {
-      h1 { font-size: 1.8rem; }
-      p  { font-size: 1rem; }
+      h1 { font-size:1.6rem; }
+      p { font-size:0.95rem; }
+      .photo { width: 220px; height: 220px; }
     }
   </style>
 </head>
 <body>
 
-<!-- DEBUG-friendly audio block -->
-<audio id="bgMusic" src="music.mp3" preload="auto" loop></audio>
+  <!-- Audio (kept debug play button) -->
+  <audio id="bgMusic" src="music.mp3" preload="auto" loop></audio>
+  <button id="playBtn" style="position:fixed;bottom:18px;left:18px;z-index:9999;padding:8px 12px;border-radius:8px;border:none;background:#ff5b8a;color:white;box-shadow:0 6px 18px rgba(0,0,0,0.2);">
+    ▶ Play / Tap to enable music
+  </button>
 
-<!-- Visible controls only while debugging. Remove controls attribute once working -->
-<button id="playBtn" style="position:fixed;bottom:18px;left:18px;z-index:9999;padding:8px 12px;border-radius:8px;border:none;background:#ff5b8a;color:white;box-shadow:0 6px 18px rgba(0,0,0,0.2);">
-  ▶ Play / Tap to enable music
-</button>
-
-<script>
-  const audio = document.getElementById("bgMusic");
-  const btn = document.getElementById("playBtn");
-
-  audio.volume = 0.5;
-
-  // Try play right away (may be blocked)
-  audio.play().catch(err => {
-    console.log("Autoplay blocked (expected):", err);
-  });
-
-  // When user taps/clicks anywhere — try to play
-  function userPlayHandler(e) {
-    audio.play().then(() => {
-      console.log("Audio playing after user interaction");
-      btn.style.display = "none"; // hide play button once playing
-    }).catch(err => {
-      console.error("Play failed after user interaction:", err);
-      // show small user message if still failing
-      if (!document.getElementById("errMsg")) {
-        const m = document.createElement("div");
-        m.id = "errMsg";
-        m.textContent = "Tap to play music (permission needed)";
-        m.style.position = "fixed";
-        m.style.bottom = "60px";
-        m.style.left = "50%";
-        m.style.transform = "translateX(-50%)";
-        m.style.color = "white";
-        m.style.padding = "6px 10px";
-        m.style.background = "rgba(0,0,0,0.35)";
-        m.style.borderRadius = "8px";
-        document.body.appendChild(m);
-      }
-    });
-    // remove event listeners once used
-    window.removeEventListener("click", userPlayHandler);
-    window.removeEventListener("touchstart", userPlayHandler);
-  }
-
-  // hook both desktop click and mobile touchstart
-  window.addEventListener("click", userPlayHandler, { once: true });
-  window.addEventListener("touchstart", userPlayHandler, { once: true });
-
-  // also allow explicit button to play
-  btn.addEventListener("click", () => {
-    userPlayHandler();
-  });
-
-  // Debug helper: show audio errors in console
-  audio.addEventListener("error", (ev) => {
-    console.error("Audio element error event:", ev);
-  });
-  audio.addEventListener("stalled", () => console.warn("Audio stalled"));
-  audio.addEventListener("suspend", () => console.warn("Audio suspended"));
-</script>
-
-
+  <script>
+    const audio = document.getElementById("bgMusic");
+    const btn = document.getElementById("playBtn");
+    audio.volume = 0.5;
+    audio.play().catch(()=>{/*autoplay likely blocked*/});
+    function userPlayHandler(){
+      audio.play().then(()=>{ btn.style.display='none'; }).catch(()=>{ /*still blocked*/ });
+      window.removeEventListener('click', userPlayHandler);
+      window.removeEventListener('touchstart', userPlayHandler);
+    }
+    window.addEventListener('click', userPlayHandler, { once:true });
+    window.addEventListener('touchstart', userPlayHandler, { once:true });
+    btn.addEventListener('click', ()=> userPlayHandler());
+  </script>
 
   <div class="overlay"></div>
 
-  <!-- Slides -->
+  <!-- Slides with images (I used the filenames shown in your repo) -->
   <div class="slide active">
+    <img class="photo" src="WhatsApp%20Image%202025-12-11%20at%2012.39.51%20PM.jpg" alt="pic1">
     <h1>Happy Birthday, My Shifu ❤️</h1>
     <p class="small">Today is all about you, my love.</p>
   </div>
 
   <div class="slide">
+    <img class="photo" src="WhatsApp%20Image%202025-12-11%20at%2012.39.52%20PM%20(1).jpg" alt="pic2">
     <h1>To the one who means everything to me…</h1>
     <p>My love, my lifeline, my whole heart.</p>
   </div>
 
   <div class="slide">
+    <img class="photo" src="WhatsApp%20Image%202025-12-11%20at%2012.39.52%20PM%20(2).jpg" alt="pic3">
     <h1>Thank you for being in my life</h1>
     <p>Thanku for being in life, my love and my lifeline.</p>
   </div>
 
   <div class="slide">
+    <img class="photo" src="WhatsApp%20Image%202025-12-11%20at%2012.39.53%20PM.jpg" alt="pic4">
     <h1>My bubu 💕</h1>
-    <p>I am greatfull that u came into my life, my bubu.</p>
+    <p>I am grateful that you came into my life, my bubu.</p>
   </div>
 
   <div class="slide">
+    <img class="photo" src="WhatsApp%20Image%202025-12-11%20at%2012.39.53%20PM%20(1).jpg" alt="pic5">
     <h1>Blessings from Bholenath 🕉️</h1>
     <p>May Bholenath bless you and give everything you want in your life.</p>
   </div>
 
   <div class="slide">
+    <img class="photo" src="WhatsApp%20Image%202025-12-11%20at%2012.39.54%20PM.jpg" alt="pic6">
     <h1>Keep Smiling Always</h1>
     <p>And make u smiling every time, today and forever.</p>
   </div>
 
   <div class="slide">
+    <img class="photo" src="WhatsApp%20Image%202025-12-11%20at%2012.39.54%20PM%20(1).jpg" alt="pic7">
     <h1>You are my forever</h1>
     <p>Happy Birthday, my Shifu. My love, my lifeline, my everything. ❤️</p>
   </div>
 
   <script>
-    // Slide change every 5 seconds
-    const slides = document.querySelectorAll(".slide");
+    // Slide rotation
+    const slides = document.querySelectorAll('.slide');
     let current = 0;
-
     setInterval(() => {
-      slides[current].classList.remove("active");
+      slides[current].classList.remove('active');
       current = (current + 1) % slides.length;
-      slides[current].classList.add("active");
-    }, 5000); // 5000 ms = 5 sec
+      slides[current].classList.add('active');
+    }, 5000);
 
-    // Floating hearts generator
-    function createHeart() {
-      const heart = document.createElement("div");
-      heart.classList.add("heart");
-      heart.textContent = "❤️";
-
-      heart.style.left = Math.random() * 100 + "vw";
-      heart.style.animationDuration = 6 + Math.random() * 5 + "s";
-      heart.style.fontSize = 18 + Math.random() * 20 + "px";
-
+    // hearts
+    function createHeart(){
+      const heart = document.createElement('div');
+      heart.className = 'heart'; heart.textContent = '❤️';
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.animationDuration = 6 + Math.random() * 5 + 's';
+      heart.style.fontSize = 18 + Math.random() * 20 + 'px';
       document.body.appendChild(heart);
-      setTimeout(() => heart.remove(), 11000);
+      setTimeout(()=> heart.remove(), 11000);
     }
-
     setInterval(createHeart, 600);
   </script>
 </body>
